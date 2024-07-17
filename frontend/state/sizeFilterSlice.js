@@ -12,3 +12,4 @@ const sizeFilterSlice = createSlice({
 
 export const { setSizeFilter } = sizeFilterSlice.actions;
 export default sizeFilterSlice.reducer
+
