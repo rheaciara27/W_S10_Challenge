@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { createOrder } from '../state/orderSlice';
+import React from 'react'
 
 const initialFormState = { // suggested
   fullName: '',
@@ -10,33 +8,14 @@ const initialFormState = { // suggested
   '3': false,
   '4': false,
   '5': false,
-};
+}
 
 export default function PizzaForm() {
-  const [formState, setFormState] = useState(initialFormState);
-  const dispatch = useDispatch();
-  const orderStatus = useSelector(state => state.orders.status);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormState({
-      ...formState,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await dispatch(createOrder(formState));
-    setFormState(initialFormState);
-  };
-
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form>
       <h2>Pizza Form</h2>
-      {orderStatus === 'loading' && <div className='pending'>Order in progress...</div>}
-      {orderStatus === 'failed' && <div className='failure'>Order failed</div>}
+      {true && <div className='pending'>Order in progress...</div>}
+      {true && <div className='failure'>Order failed: fullName is required</div>}
 
       <div className="input-group">
         <div>
@@ -47,8 +26,6 @@ export default function PizzaForm() {
             name="fullName"
             placeholder="Type full name"
             type="text"
-            value={formState.fullName}
-            onChange={handleChange}
           />
         </div>
       </div>
@@ -56,7 +33,7 @@ export default function PizzaForm() {
       <div className="input-group">
         <div>
           <label htmlFor="size">Size</label><br />
-          <select data-testid="sizeSelect" id="size" name="size" value={formState.size} onChange={handleChange}>
+          <select data-testid="sizeSelect" id="size" name="size">
             <option value="">----Choose size----</option>
             <option value="S">Small</option>
             <option value="M">Medium</option>
@@ -67,19 +44,19 @@ export default function PizzaForm() {
 
       <div className="input-group">
         <label>
-          <input data-testid="checkPepperoni" name="1" type="checkbox" checked={formState['1']} onChange={handleChange} />
+          <input data-testid="checkPepperoni" name="1" type="checkbox" />
           Pepperoni<br /></label>
         <label>
-          <input data-testid="checkGreenpeppers" name="2" type="checkbox" checked={formState['2']} onChange={handleChange} />
+          <input data-testid="checkGreenpeppers" name="2" type="checkbox" />
           Green Peppers<br /></label>
         <label>
-          <input data-testid="checkPineapple" name="3" type="checkbox" checked={formState['3']} onChange={handleChange} />
+          <input data-testid="checkPineapple" name="3" type="checkbox" />
           Pineapple<br /></label>
         <label>
-          <input data-testid="checkMushrooms" name="4" type="checkbox" checked={formState['4']} onChange={handleChange} />
+          <input data-testid="checkMushrooms" name="4" type="checkbox" />
           Mushrooms<br /></label>
         <label>
-          <input data-testid="checkHam" name="5" type="checkbox" checked={formState['5']} onChange={handleChange} />
+          <input data-testid="checkHam" name="5" type="checkbox" />
           Ham<br /></label>
       </div>
       <input data-testid="submit" type="submit" />
