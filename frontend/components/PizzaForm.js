@@ -1,22 +1,37 @@
-import React from 'react'
-
-const initialFormState = { // suggested
-  fullName: '',
-  size: '',
-  '1': false,
-  '2': false,
-  '3': false,
-  '4': false,
-  '5': false,
-}
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateFormState, resetFormState, submitOrder,fetchOrders } from '../state/store';
 
 export default function PizzaForm() {
-  return (
-    <form>
-      <h2>Pizza Form</h2>
-      {true && <div className='pending'>Order in progress...</div>}
-      {true && <div className='failure'>Order failed: fullName is required</div>}
+  const dispatch = useDispatch();
+  const formState = useSelector((state) => state.pizzaForm);
+  const { fullName, size, toppings, status, error } = formState;
 
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      dispatch(updateFormState({ toppings: { ...toppings, [name]: checked } }));
+    } else {
+      dispatch(updateFormState({ [name]: value }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(submitOrder({ 
+      fullName, 
+      size, 
+      toppings: Object.keys(toppings).filter((key) => toppings[key]) 
+    })).then(() => {
+      // After submitting, refetch the orders to update the list
+      dispatch(fetchOrders());
+    });
+  }
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>Pizza Form</h2>
+      {status === 'loading' && <div className="pending">Order in progress...</div>}
+      {status === 'failed' && <div className="failure">Order failed: {error}</div>}
       <div className="input-group">
         <div>
           <label htmlFor="fullName">Full Name</label><br />
@@ -26,14 +41,21 @@ export default function PizzaForm() {
             name="fullName"
             placeholder="Type full name"
             type="text"
+            value={fullName}
+            onChange={handleInputChange}
           />
         </div>
       </div>
-
       <div className="input-group">
         <div>
           <label htmlFor="size">Size</label><br />
-          <select data-testid="sizeSelect" id="size" name="size">
+          <select
+            data-testid="sizeSelect"
+            id="size"
+            name="size"
+            value={size}
+            onChange={handleInputChange}
+          >
             <option value="">----Choose size----</option>
             <option value="S">Small</option>
             <option value="M">Medium</option>
@@ -41,25 +63,21 @@ export default function PizzaForm() {
           </select>
         </div>
       </div>
-
       <div className="input-group">
-        <label>
-          <input data-testid="checkPepperoni" name="1" type="checkbox" />
-          Pepperoni<br /></label>
-        <label>
-          <input data-testid="checkGreenpeppers" name="2" type="checkbox" />
-          Green Peppers<br /></label>
-        <label>
-          <input data-testid="checkPineapple" name="3" type="checkbox" />
-          Pineapple<br /></label>
-        <label>
-          <input data-testid="checkMushrooms" name="4" type="checkbox" />
-          Mushrooms<br /></label>
-        <label>
-          <input data-testid="checkHam" name="5" type="checkbox" />
-          Ham<br /></label>
+        {['Pepperoni', 'Green peppers', 'Pineapple', 'Mushrooms', 'Ham'].map((topping, index) => (
+          <label key={index}>
+            <input
+              data-testid={`check${topping.replace(' ', '')}`}
+              name={index + 1}
+              type="checkbox"
+              checked={toppings[index + 1]}
+              onChange={handleInputChange}
+            />
+            {topping}<br />
+          </label>
+        ))}
       </div>
-      <input data-testid="submit" type="submit" />
+      <input data-testid="submit" type="submit" value="Order Pizza" />
     </form>
-  )
+  );
 }
